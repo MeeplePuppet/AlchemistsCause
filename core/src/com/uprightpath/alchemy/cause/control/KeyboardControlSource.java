@@ -19,11 +19,11 @@ public class KeyboardControlSource implements ControlSource {
     }
 
     public boolean isDown(Control control) {
-        return Gdx.input.isKeyPressed(keyboardMapping.get(control));
+        return keyboardMapping.containsKey(control) && Gdx.input.isKeyPressed(keyboardMapping.get(control));
     }
 
     public boolean isJustDown(Control control) {
-        return Gdx.input.isKeyJustPressed(keyboardMapping.get(control));
+        return keyboardMapping.containsKey(control) && Gdx.input.isKeyJustPressed(keyboardMapping.get(control));
     }
 
     public void setKeyboardMapping(Control control, int keyCode) {

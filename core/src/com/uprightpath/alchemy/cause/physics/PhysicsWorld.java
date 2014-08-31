@@ -14,7 +14,14 @@ public class PhysicsWorld {
     private Array<AgentEntity> agents = new Array<AgentEntity>();
     private Array<CollisionEntity> collisions = new Array<CollisionEntity>();
     private Array<PlatformEntity> platforms = new Array<PlatformEntity>();
+    private Array<LadderEntity> ladders = new Array<LadderEntity>();
     private Intersector.MinimumTranslationVector mtv = new Intersector.MinimumTranslationVector();
+    private Vector2 acceleration = new Vector2(0f, -(1f / 300f));
+    private Vector2 groundSpeedMax = new Vector2(.15f, 0f);
+    private Vector2 groundSpeedMin = new Vector2(.02f, 0f);
+    private Vector2 airSpeedMax = new Vector2(.10f, .98f);
+    private Vector2 airSpeedMin = new Vector2(.02f, 0.f);
+    private Vector2 airFriction = new Vector2(.995f, .98f);
 
     public PhysicsWorld() {
     }
@@ -23,7 +30,7 @@ public class PhysicsWorld {
         AgentEntity agentEntity;
         CollisionEntity collisionEntity;
         PlatformEntity platformEntity;
-        Surface surface;
+        RailSeries surface;
         Vector2 currentPosition, position;
         for (int i = 0; i < platforms.size; i++) {
             platformEntity = platforms.get(i);
@@ -36,28 +43,30 @@ public class PhysicsWorld {
         for (int i = 0; i < agents.size; i++) {
             currentPosition = null;
             agentEntity = agents.get(i);
-            agentEntity.applyLogic();
+            agentEntity.updatePreviousBoundings();
+            agentEntity.applyLogic(this);
+            agentEntity.applyDeltaVelocity(acceleration.x, 0.f);
             agentEntity.translate(agentEntity.getVelocity());
-            if (agentEntity.getPlatform() != null) {
-                surface = agentEntity.getPlatform().getSurface();
-                for (int j = 0; j < surface.getPhysicsPlatforms().size; j++) {
-                    position = surface.getPhysicsPlatforms().get(j).getPosition(agentEntity);
-                    if (position != null && (currentPosition == null || position.y > currentPosition.y)) {
+            if (agentEntity.getRail() == null || agentEntity.isFallThrough()) {
+                agentEntity.applyDeltaVelocity(acceleration);
+                agentEntity.translate(acceleration);
+                agentEntity.applyDeltaVelocity(acceleration);
+            } else {
+                agentEntity.getVelocity().y = Math.min(0, agentEntity.getVelocity().y);
+            }
+            if (agentEntity.getRail() != null) {
+                surface = agentEntity.getRail().getRailSeries();
+                for (int j = 0; j < surface.getRailEntities().size; j++) {
+                    position = surface.getRailEntities().get(j).getPosition(agentEntity);
+                    if (position != null && (currentPosition == null || (position.y > currentPosition.y))) {
                         agentEntity.setPosition(position);
-                        agentEntity.setPlatform(surface.getPhysicsPlatforms().get(j));
+                        agentEntity.setRail(surface.getRailEntities().get(j));
                         currentPosition = position;
                     }
                 }
                 if (currentPosition == null) {
-                    agentEntity.setPlatform(null);
+                    agentEntity.setRail(null);
                 }
-            }
-            if (agentEntity.getPlatform() == null) {
-                agentEntity.applyDeltaVelocity(0, -.01f);
-                agentEntity.translate(0, -.01f);
-                agentEntity.applyDeltaVelocity(0, -.01f);
-            } else {
-                agentEntity.getVelocity().y = 0;
             }
             for (int j = 0; j < collisions.size; j++) {
                 if (collisions.get(j).canCollide(agentEntity.getCollisionPolygon())) {
@@ -68,19 +77,39 @@ public class PhysicsWorld {
                                 agentEntity.getVelocity().x = 0;
                             }
                             if (mtv.depth * mtv.normal.y != 0) {
-                                agentEntity.getVelocity().y = 0;
+                                agentEntity.getVelocity().y = Math.min(0, agentEntity.getVelocity().y);
+                            }
+                        }
+                    }
+                }
+            }
+            for (int j = 0; j < agents.size; j++) {
+                if (agentEntity != agents.get(j)) {
+                    if (agents.get(j).canCollide(agentEntity.getCollisionPolygon()) && agentEntity.isSolid()) {
+                        if (Intersector.overlapConvexPolygons(agentEntity.getCollisionPolygon(), agents.get(j).getCollisionPolygon(), mtv)) {
+                            if (mtv.depth > 0) {
+                                agentEntity.translate(mtv.depth * mtv.normal.x, mtv.depth * mtv.normal.y);
+                                if (mtv.depth * mtv.normal.x != 0) {
+                                    agentEntity.getVelocity().x = 0;
+                                }
+                                if (mtv.depth * mtv.normal.y != 0) {
+                                    agentEntity.getVelocity().y = Math.min(0, agentEntity.getVelocity().y);
+                                }
+                                if (agents.get(j).isSolid()) {
+                                    agentEntity.collidedWithAgent(agents.get(j));
+                                }
                             }
                         }
                     }
                 }
             }
             for (int j = 0; j < platforms.size; j++) {
-                if ((agentEntity.getPlatform() == null || platforms.get(j).getSurface() != agentEntity.getPlatform().getSurface())) {
-                    if (platforms.get(j).canPlatformCollide(agentEntity)) {
+                if ((agentEntity.getRail() == null || platforms.get(j).getRailSeries() != agentEntity.getRail().getRailSeries())) {
+                    if (platforms.get(j).canPlatformCollide(agentEntity) && (!agentEntity.isFallThrough() || platforms.get(j).isCollides())) {
                         position = platforms.get(j).getPosition(agentEntity);
-                        if (position != null && (currentPosition == null || position.y > currentPosition.y)) {
+                        if (position != null && (currentPosition == null || position.y >= currentPosition.y) && platforms.get(j).hasPriority(agentEntity)) {
                             agentEntity.setPosition(position);
-                            agentEntity.setPlatform(platforms.get(j));
+                            agentEntity.setRail(platforms.get(j));
                             currentPosition = position;
                         }
                     } else if (platforms.get(j).canCollide(agentEntity) && platforms.get(j).isCollides()) {
@@ -91,9 +120,21 @@ public class PhysicsWorld {
                                     agentEntity.getVelocity().x = 0;
                                 }
                                 if (mtv.depth * mtv.normal.y != 0) {
-                                    agentEntity.getVelocity().y = 0;
+                                    agentEntity.getVelocity().y = Math.min(0, agentEntity.getVelocity().y);
                                 }
                             }
+                        }
+                    }
+                }
+            }
+            for (int j = 0; j < ladders.size; j++) {
+                if ((agentEntity.getRail() == null || ladders.get(j).getRailSeries() != agentEntity.getRail().getRailSeries())) {
+                    if (ladders.get(j).canCollide(agentEntity)) {
+                        position = ladders.get(j).getPosition(agentEntity);
+                        if (position != null && (currentPosition == null || position.y >= currentPosition.y || ladders.get(j).hasPriority(agentEntity))) {
+                            agentEntity.setPosition(position);
+                            agentEntity.setRail(ladders.get(j));
+                            currentPosition = position;
                         }
                     }
                 }
@@ -154,5 +195,35 @@ public class PhysicsWorld {
         if (!agents.contains(agentEntity, true)) {
             agents.add(agentEntity);
         }
+    }
+
+    public void addLadderEntity(LadderEntity ladderEntity) {
+        if (!ladders.contains(ladderEntity, true)) {
+            ladders.add(ladderEntity);
+        }
+    }
+
+    public Vector2 getGroundSpeedMax() {
+        return groundSpeedMax;
+    }
+
+    public Vector2 getGroundSpeedMin() {
+        return groundSpeedMin;
+    }
+
+    public Vector2 getAirSpeedMax() {
+        return airSpeedMax;
+    }
+
+    public Vector2 getAirSpeedMin() {
+        return airSpeedMin;
+    }
+
+    public Vector2 getAirFriction() {
+        return airFriction;
+    }
+
+    public Array<LadderEntity> getLadders() {
+        return ladders;
     }
 }

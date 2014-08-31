@@ -33,24 +33,30 @@ public class WorldRenderer {
         Gdx.gl.glLineWidth(1);
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(1, 0, 0, 1);
+        shapeRenderer.setColor(0, 1, 0, 1);
         for (int i = 0; i < physicsWorld.getCollisions().size; i++) {
             shapeRenderer.polygon(physicsWorld.getCollisions().get(i).getCollisionPolygon().getTransformedVertices());
         }
         for (int i = 0; i < physicsWorld.getPlatforms().size; i++) {
-            shapeRenderer.setColor(0, 1, 0, 1);
-            shapeRenderer.polygon(physicsWorld.getPlatforms().get(i).getCollisionPolygon().getTransformedVertices());
+            if (physicsWorld.getPlatforms().get(i).isCollides()) {
+                shapeRenderer.setColor(0, 1, 0, 1);
+                shapeRenderer.polygon(physicsWorld.getPlatforms().get(i).getCollisionPolygon().getTransformedVertices());
+            }
             shapeRenderer.setColor(0, .5f, 0, 1);
             shapeRenderer.polygon(physicsWorld.getPlatforms().get(i).getPlatformCollisionPolygon().getTransformedVertices());
         }
+        for (int i = 0; i < physicsWorld.getLadders().size; i++) {
+            shapeRenderer.setColor(.5f, .5f, 0, 1);
+            shapeRenderer.polygon(physicsWorld.getLadders().get(i).getCollisionPolygon().getTransformedVertices());
+        }
         for (int i = 0; i < physicsWorld.getAgents().size; i++) {
-            if (physicsWorld.getAgents().get(i).getPlatform() == null) {
+            if (physicsWorld.getAgents().get(i).getRail() == null) {
                 shapeRenderer.setColor(0, 0, 1, 1);
             } else {
                 shapeRenderer.setColor(0, 1, 1, 1);
             }
             shapeRenderer.polygon(physicsWorld.getAgents().get(i).getCollisionPolygon().getTransformedVertices());
-            shapeRenderer.setColor(0, .5f, .5f, 1);
+            shapeRenderer.setColor(0, 1, 1, 1);
             shapeRenderer.polygon(physicsWorld.getAgents().get(i).getPlatformCollisionPolygon().getTransformedVertices());
         }
         shapeRenderer.end();

@@ -10,6 +10,10 @@ import com.badlogic.gdx.math.Vector2;
 public abstract class PhysicsEntity {
     protected String name;
     protected Vector2 position = new Vector2();
+    protected Vector2 leftBoundingSide = new Vector2();
+    protected Vector2 rightBoundingSide = new Vector2();
+    protected Vector2 leftBoundingSidePrevious = new Vector2();
+    protected Vector2 rightBoundingSidePrevious = new Vector2();
 
     public PhysicsEntity() {
 
@@ -25,6 +29,11 @@ public abstract class PhysicsEntity {
 
     public void setPosition(Vector2 position) {
         this.setPosition(position.x, position.y);
+    }
+
+    public void updatePreviousBoundings() {
+        leftBoundingSidePrevious.set(leftBoundingSide);
+        rightBoundingSidePrevious.set(rightBoundingSide);
     }
 
     public void setPosition(float x, float y) {
@@ -61,4 +70,12 @@ public abstract class PhysicsEntity {
     public abstract boolean canCollide(Polygon polygon);
 
     public abstract Vector2 getVelocity();
+
+    public Vector2 getLeftBoundingSide() {
+        return leftBoundingSide.set(position);
+    }
+
+    public Vector2 getRightBoundingSide() {
+        return rightBoundingSide.set(position).add(getCollisionPolygon().getBoundingRectangle().width, 0);
+    }
 }

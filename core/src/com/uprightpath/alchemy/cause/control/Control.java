@@ -16,16 +16,40 @@ public enum Control {
     STATUS,
     MENU;
     private static ControlSource controlSource;
+    private boolean down = false;
+    private boolean justDown = false;
+
+    public static void update() {
+        for (int i = 0; i < Control.values().length; i++) {
+            Control.values()[i].updateControl();
+        }
+    }
+
+    public static void reset(boolean both) {
+        for (int i = 0; i < Control.values().length; i++) {
+            Control.values()[i].resetControl(both);
+        }
+    }
 
     public static void setControlSource(ControlSource controlSource) {
         Control.controlSource = controlSource;
     }
 
     public boolean isDown() {
-        return controlSource.isDown(this);
+        return down;
     }
 
     public boolean isJustDown() {
-        return controlSource.isJustDown(this);
+        return justDown;
+    }
+
+    private void resetControl(boolean both) {
+        down = down && both;
+        justDown = false;
+    }
+
+    private void updateControl() {
+        down = down || controlSource.isDown(this);
+        justDown = justDown || controlSource.isJustDown(this);
     }
 }

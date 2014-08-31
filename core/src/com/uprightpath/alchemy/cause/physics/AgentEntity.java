@@ -3,6 +3,8 @@ package com.uprightpath.alchemy.cause.physics;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.uprightpath.alchemy.cause.control.Control;
 import com.uprightpath.alchemy.cause.scenario.Faction;
 
 /**
@@ -10,8 +12,9 @@ import com.uprightpath.alchemy.cause.scenario.Faction;
  * Created by Geo on 8/25/2014.
  */
 public abstract class AgentEntity extends PhysicsEntity {
-    protected PlatformEntity platform;
+    protected RailEntity rail;
     protected Vector2 velocity = new Vector2();
+    protected Vector2 acceleration = new Vector2();
     protected Faction faction;
     protected boolean fallThrough;
     protected int fallTime;
@@ -19,14 +22,14 @@ public abstract class AgentEntity extends PhysicsEntity {
     public AgentEntity() {
     }
 
-    public abstract void applyLogic();
+    public abstract void applyLogic(PhysicsWorld physicsWorld);
 
-    public PlatformEntity getPlatform() {
-        return platform;
+    public RailEntity getRail() {
+        return rail;
     }
 
-    public void setPlatform(PlatformEntity platform) {
-        this.platform = platform;
+    public void setRail(RailEntity rail) {
+        this.rail = rail;
     }
 
 
@@ -82,4 +85,6 @@ public abstract class AgentEntity extends PhysicsEntity {
     public void setFallTime(int fallTime) {
         this.fallTime = fallTime;
     }
+
+    public abstract void collidedWithAgent(AgentEntity agentEntity);
 }

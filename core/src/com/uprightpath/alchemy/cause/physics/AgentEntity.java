@@ -3,8 +3,7 @@ package com.uprightpath.alchemy.cause.physics;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.ObjectMap;
-import com.uprightpath.alchemy.cause.control.Control;
+import com.badlogic.gdx.utils.Array;
 import com.uprightpath.alchemy.cause.scenario.Faction;
 
 /**
@@ -18,11 +17,14 @@ public abstract class AgentEntity extends PhysicsEntity {
     protected Faction faction;
     protected boolean fallThrough;
     protected int fallTime;
+    protected Array<RollingDamageText> rollingDamageTexts = new Array<RollingDamageText>();
 
     public AgentEntity() {
     }
 
-    public abstract void applyLogic(PhysicsWorld physicsWorld);
+    public abstract void applyStateLogic(PhysicsWorld physicsWorld);
+
+    public abstract void updateState();
 
     public RailEntity getRail() {
         return rail;
@@ -87,4 +89,16 @@ public abstract class AgentEntity extends PhysicsEntity {
     }
 
     public abstract void collidedWithAgent(AgentEntity agentEntity);
+
+    public Vector2 getAcceleration() {
+        return acceleration;
+    }
+
+    public Array<RollingDamageText> getRollingDamageTexts() {
+        return rollingDamageTexts;
+    }
+
+    public void setRollingDamageTexts(Array<RollingDamageText> rollingDamageTexts) {
+        this.rollingDamageTexts = rollingDamageTexts;
+    }
 }

@@ -1,7 +1,5 @@
 package com.uprightpath.alchemy.cause.physics;
 
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import com.uprightpath.alchemy.cause.control.Control;
 
@@ -16,6 +14,7 @@ public class LadderEntity extends RailEntity {
     protected Vector2 speedDown = new Vector2(.01f, .02f);
 
     public LadderEntity() {
+        this.friction = .25f;
     }
 
     public LadderEntity(Vector2 start, Vector2 end) {

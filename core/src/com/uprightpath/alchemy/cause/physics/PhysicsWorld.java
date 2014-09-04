@@ -16,7 +16,7 @@ public class PhysicsWorld {
     private Array<PlatformEntity> platforms = new Array<PlatformEntity>();
     private Array<LadderEntity> ladders = new Array<LadderEntity>();
     private Intersector.MinimumTranslationVector mtv = new Intersector.MinimumTranslationVector();
-    private Vector2 acceleration = new Vector2(0f, -(1f / 300f));
+    private Vector2 acceleration = new Vector2(0f, -(1f / 150f));
     private Vector2 groundSpeedMax = new Vector2(.15f, 0f);
     private Vector2 groundSpeedMin = new Vector2(.02f, 0f);
     private Vector2 airSpeedMax = new Vector2(.10f, .98f);
@@ -44,13 +44,12 @@ public class PhysicsWorld {
             currentPosition = null;
             agentEntity = agents.get(i);
             agentEntity.updatePreviousBoundings();
-            agentEntity.applyLogic(this);
+            agentEntity.applyStateLogic(this);
             agentEntity.applyDeltaVelocity(acceleration.x, 0.f);
             agentEntity.translate(agentEntity.getVelocity());
             if (agentEntity.getRail() == null || agentEntity.isFallThrough()) {
-                agentEntity.applyDeltaVelocity(acceleration);
-                agentEntity.translate(acceleration);
-                agentEntity.applyDeltaVelocity(acceleration);
+                agentEntity.applyDeltaVelocity(0, acceleration.y);
+                agentEntity.translate(0, acceleration.y);
             } else {
                 agentEntity.getVelocity().y = Math.min(0, agentEntity.getVelocity().y);
             }
@@ -139,6 +138,7 @@ public class PhysicsWorld {
                     }
                 }
             }
+            agentEntity.updateState();
         }
     }
 

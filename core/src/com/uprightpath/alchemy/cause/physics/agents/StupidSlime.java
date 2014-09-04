@@ -36,7 +36,7 @@ public class StupidSlime extends AgentEntity {
     }
 
     @Override
-    public void applyLogic(PhysicsWorld physicsWorld) {
+    public void applyStateLogic(PhysicsWorld physicsWorld) {
         boolean moved = false;
         boolean down = false;
         if (MathUtils.random(5) == 0) {
@@ -90,6 +90,11 @@ public class StupidSlime extends AgentEntity {
                 velocity.x = 0;
             }
         }
+    }
+
+    @Override
+    public void updateState() {
+
     }
 
     @Override

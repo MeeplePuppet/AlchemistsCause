@@ -6,13 +6,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.uprightpath.alchemy.cause.builders.WorldBuilder;
 import com.uprightpath.alchemy.cause.control.Control;
 import com.uprightpath.alchemy.cause.control.KeyboardControlSource;
 import com.uprightpath.alchemy.cause.physics.PhysicsWorld;
-import com.uprightpath.alchemy.cause.physics.builders.WorldBuilder;
 import com.uprightpath.alchemy.cause.physics.player.PlayerAgent;
 import com.uprightpath.alchemy.cause.rendering.WorldRenderer;
 
@@ -77,16 +76,19 @@ public class Main extends ApplicationAdapter {
         // Walls
         worldBuilder.buildWall("Wall Tower; Left Wall", physicsWorld, new Vector2(0, 0), new Vector2(1, 20));
         worldBuilder.buildWall("Wall Tower; Right Wall", physicsWorld, new Vector2(6, 6.5f), new Vector2(7, 20));
-        worldBuilder.buildWall("MC's House; Left Wall", physicsWorld, new Vector2(28, 7), new Vector2(29, 9));
-        worldBuilder.buildWall("MC's House; Right Wall", physicsWorld, new Vector2(42, 7), new Vector2(43, 9));
+        worldBuilder.buildWall("MC's House; Second Floor, Left Wall", physicsWorld, new Vector2(27, 7), new Vector2(28, 8));
+        worldBuilder.buildWall("MC's House; Second Floor, Left Wall", physicsWorld, new Vector2(28, 7.5f), new Vector2(29, 9));
+        worldBuilder.buildWall("MC's House; Second Floot, Right Wall", physicsWorld, new Vector2(42, 7.5f), new Vector2(43, 9));
+        worldBuilder.buildWall("MC's House; Second Floot, Right Wall", physicsWorld, new Vector2(43, 7), new Vector2(44, 8));
         worldBuilder.buildWall("Schoolhouse; Wall", physicsWorld, new Vector2(107, 4.5f), new Vector2(108, 8f));
 
         // Ladders
         worldBuilder.buildLadder("Wall Tower; Ladder", physicsWorld, new Vector2[]{new Vector2(3.5f, 15), new Vector2(3.5f, 20)});
+        worldBuilder.buildLadder("MC's House; Drain Pipe", physicsWorld, new Vector2[]{new Vector2(26.5f, 4), new Vector2(26.5f, 7), new Vector2(25.75f, 8)});
         worldBuilder.buildLadder("MC's House; Ladder", physicsWorld, new Vector2[]{new Vector2(37.5f, 4.5f), new Vector2(37.5f, 8)});
 
         for (int i = 0; i < 10; i++) {
-            worldBuilder.buildStupidSlime("Slime " + i, physicsWorld, new Vector2(MathUtils.random(7f, 107f), 19));
+            // worldBuilder.buildStupidSlime("Slime " + i, physicsWorld, new Vector2(MathUtils.random(7f, 107f), 19));
         }
     }
 
@@ -109,7 +111,8 @@ public class Main extends ApplicationAdapter {
         batch.begin();
         font.setColor(Color.YELLOW);
         font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond() + "\t d: " + playerAgent.getVelocity(), 0, 480);
-        font.draw(batch, "Standing On: " + (playerAgent.getRail() == null ? "NOTHING" : playerAgent.getRail().getRailSeries().getName() + " - " + playerAgent.getRail().getName()), 0, 440);
+        font.draw(batch, "Standing On: " + (playerAgent.getRail() == null ? "NOTHING" : playerAgent.getRail().getRailSeries().getName() + " - " + playerAgent.getRail().getName()), 0, 450);
+        font.draw(batch, "Fallthrough: " + (playerAgent.getState()), 0, 420);
         batch.end();
     }
 }

@@ -1,4 +1,4 @@
-package com.uprightpath.alchemy.cause.physics.builders;
+package com.uprightpath.alchemy.cause.builders;
 
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
@@ -39,6 +39,8 @@ public class WorldBuilder {
             } else {
                 platformEntity.setCollisionPolygon(new Polygon(new float[]{first.x, first.y, first.x, first.y - first.z, second.x, second.y - second.z, second.x, second.y}));
             }
+            platformEntity.setSlip(new Vector2(first.y - second.y, first.x - second.x).nor());
+            platformEntity.getSlip().scl(.2f);
             platformEntity.setCollides(i == 0 || i == surfaceVectors.length - 1 || isCollides);
             surface.addRailEntity(platformEntity);
             physicsWorld.addPlatformEntity(platformEntity);
@@ -63,6 +65,8 @@ public class WorldBuilder {
             } else {
                 platformEntity.setCollisionPolygon(new Polygon(new float[]{first.x, first.y, first.x, first.y - first.z, second.x, second.y - second.z, second.x, second.y}));
             }
+            platformEntity.setSlip(new Vector2(first.y - second.y, first.x - second.x).nor());
+            platformEntity.getSlip().scl(.2f);
             platformEntity.setCollides(i == 0 || i == surfaceVectors.length - 1 || isCollides);
             surface.addRailEntity(platformEntity);
             physicsWorld.addPlatformEntity(platformEntity);
@@ -81,6 +85,8 @@ public class WorldBuilder {
             platformEntity.setName("Platform " + i);
             platformEntity.setEndPoints(new Vector2(first.x, first.y), new Vector2(second.x, second.y));
             platformEntity.setCollisionPolygon(new Polygon(new float[]{first.x, first.y, first.x, first.y - first.z, second.x, second.y - second.z, second.x, second.y}));
+            platformEntity.setSlip(new Vector2(first.y - second.y, first.x - second.x).nor());
+            platformEntity.getSlip().scl(.2f);
             platformEntity.setCollides(false);
             surface.addRailEntity(platformEntity);
             physicsWorld.addPlatformEntity(platformEntity);
@@ -102,6 +108,7 @@ public class WorldBuilder {
         edgePlatformEntity.setCollides(true);
         edgePlatformEntity.setLeftSide(true);
         edgePlatformEntity.setRequiredModifier(surfaceVectors[0].y < surfaceVectors[surfaceVectors.length - 1].y ? Control.UP : Control.DOWN);
+        edgePlatformEntity.setSlip(new Vector2(0, 0));
         surface.addRailEntity(edgePlatformEntity);
         physicsWorld.addPlatformEntity(edgePlatformEntity);
         for (int i = 0; i < surfaceVectors.length - 1; i++) {
@@ -123,6 +130,7 @@ public class WorldBuilder {
         edgePlatformEntity.setCollides(true);
         edgePlatformEntity.setLeftSide(false);
         edgePlatformEntity.setRequiredModifier(surfaceVectors[0].y >= surfaceVectors[surfaceVectors.length - 1].y ? Control.UP : Control.DOWN);
+        edgePlatformEntity.setSlip(new Vector2(0, 0));
         surface.addRailEntity(edgePlatformEntity);
         physicsWorld.addPlatformEntity(edgePlatformEntity);
         System.out.println("RailSeries Size: " + surface.getRailEntities().size);
@@ -138,7 +146,7 @@ public class WorldBuilder {
             ladderEntity = new LadderEntity();
             ladderEntity.setName("Platform " + i);
             ladderEntity.setEndPoints(new Vector2(first.x, first.y), new Vector2(second.x, second.y));
-            ladderEntity.setCollisionPolygon(new Polygon(new float[]{first.x - .05f, second.y, first.x - .05f, first.y, second.x + .05f, first.y, second.x + .05f, second.y}));
+            ladderEntity.setCollisionPolygon(new Polygon(new float[]{second.x - .05f, second.y, first.x - .05f, first.y, first.x + .05f, first.y, second.x + .05f, second.y}));
             surface.addRailEntity(ladderEntity);
             physicsWorld.addLadderEntity(ladderEntity);
         }

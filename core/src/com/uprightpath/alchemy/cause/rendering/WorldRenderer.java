@@ -1,6 +1,7 @@
 package com.uprightpath.alchemy.cause.rendering;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -13,18 +14,20 @@ import com.uprightpath.alchemy.cause.physics.PhysicsWorld;
 public class WorldRenderer {
     private ShapeRenderer shapeRenderer;
     private Vector2 position = new Vector2();
-    private OrthographicCamera camera;
+    private Camera camera;
 
 
     public WorldRenderer() {
         this.shapeRenderer = new ShapeRenderer();
-        System.out.println("[" + Gdx.graphics.getWidth() + ", " + Gdx.graphics.getHeight() + "]");
         this.camera = new OrthographicCamera(((float) Gdx.graphics.getWidth() / (float) Gdx.graphics.getHeight()) * 10, 10);
         this.camera.translate(0, 0, 10);
         this.camera.lookAt(0, 0, 0);
     }
 
     public void render(float delta, PhysicsWorld physicsWorld) {
+        physicsWorld.getFollowingAgent();
+        physicsWorld.getFollowingAgent().getCollisionPolygon();
+        physicsWorld.getFollowingAgent().getCollisionPolygon().getBoundingRectangle();
         physicsWorld.getFollowingAgent().getCollisionPolygon().getBoundingRectangle().getCenter(position);
         Vector3 previous = new Vector3(camera.position);
         camera.position.set(position.x, position.y, 10);
